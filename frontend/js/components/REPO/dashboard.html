@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Soporte Técnico</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">📊 Dashboard</h1>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-info">
+                <h3 id="statPendientes">-</h3>
+                <p>Pendientes</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⚙️</div>
+            <div class="stat-info">
+                <h3 id="statEnProceso">-</h3>
+                <p>En Proceso</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+                <h3 id="statResueltas">-</h3>
+                <p>Resueltas</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">❌</div>
+            <div class="stat-info">
+                <h3 id="statCanceladas">-</h3>
+                <p>Canceladas</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-header">
+        <h2 style="font-size:1.25rem;">📋 Solicitudes Recientes</h2>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Cliente</th>
+                <th>Categoría</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+            </tr>
+            </thead>
+            <tbody id="recentSolicitudes">
+            <tr><td colspan="7"><div class="spinner"></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/utils/errorHandler.js"></script>
+<script src="../js/components/navbar.js"></script>
+<script src="../js/api/solicitudApi.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!auth.requireAuth()) return;
+
+      try {
+        // Cargar estadísticas (solo para supervisor/admin)
+        const rol = auth.getUserRole();
+        if (rol === 'supervisor' || rol === 'administrador') {
+          const statsResult = await solicitudApi.getEstadisticas();
+          if (statsResult.success) {
+            const stats = statsResult.data;
+            document.getElementById('statPendientes').textContent = stats.pendientes || 0;
+            document.getElementById('statEnProceso').textContent = stats.en_proceso || 0;
+            document.getElementById('statResueltas').textContent = stats.resueltas || 0;
+            document.getElementById('statCanceladas').textContent = stats.canceladas || 0;
+          }
+        } else {
+          // Para otros roles, ocultar estadísticas o mostrar sus propias
+          document.getElementById('statsGrid').style.display = 'none';
+        }
+
+        // Cargar solicitudes recientes
+        const result = await solicitudApi.getAll({});
+        const tbody = document.getElementById('recentSolicitudes');
+
+        if (result.success && result.data.length > 0) {
+          const recientes = result.data.slice(0, 10);
+          tbody.innerHTML = recientes.map(s => `
+            <tr>
+              <td>#${s.id}</td>
+              <td><a href="detalle-solicitud.html?id=${s.id}">${s.titulo}</a></td>
+              <td>${s.cliente_nombre || 'N/A'}</td>
+              <td>${s.categoria_nombre || 'N/A'}</td>
+              <td><span class="badge badge-${s.prioridad}">${s.prioridad}</span></td>
+              <td><span class="badge badge-${s.estado}">${s.estado.replace('_', ' ')}</span></td>
+              <td>${new Date(s.fecha_creacion).toLocaleDateString()}</td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>No hay solicitudes registradas</p></div></td></tr>';
+        }
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    });
+</script>
+</body>
+</html>

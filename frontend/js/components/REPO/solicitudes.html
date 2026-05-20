@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitudes - Sistema de Soporte Técnico</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">📋 Solicitudes de Soporte</h1>
+        <a href="nueva-solicitud.html" class="btn btn-primary">+ Nueva Solicitud</a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-bar" id="filtersBar">
+        <div class="filter-group">
+            <label>Estado</label>
+            <select id="filterEstado">
+                <option value="">Todos</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="en_proceso">En Proceso</option>
+                <option value="resuelto">Resuelto</option>
+                <option value="cancelado">Cancelado</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Prioridad</label>
+            <select id="filterPrioridad">
+                <option value="">Todas</option>
+                <option value="baja">Baja</option>
+                <option value="media">Media</option>
+                <option value="alta">Alta</option>
+                <option value="critica">Crítica</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Buscar</label>
+            <input type="text" id="filterSearch" placeholder="Título o descripción...">
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btnFiltrar">🔍 Filtrar</button>
+        <button class="btn btn-secondary btn-sm" id="btnLimpiar">✕ Limpiar</button>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Cliente</th>
+                <th>Categoría</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Técnico</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="solicitudesTableBody">
+            <tr><td colspan="9"><div class="spinner"></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para cambiar estado -->
+<div class="modal-overlay hidden" id="estadoModal">
+    <div class="modal">
+        <h2>Actualizar Estado</h2>
+        <form id="estadoForm">
+            <input type="hidden" id="solicitudId">
+            <div class="form-group">
+                <label for="nuevoEstado">Nuevo Estado</label>
+                <select id="nuevoEstado" class="form-control" required>
+                    <option value="">Seleccionar...</option>
+                    <option value="en_proceso">En Proceso</option>
+                    <option value="resuelto">Resuelto</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="comentarioEstado">Comentario</label>
+                <textarea id="comentarioEstado" class="form-control" placeholder="Motivo del cambio de estado..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('estadoModal').classList.add('hidden')">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Actualizar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/utils/errorHandler.js"></script>
+<script src="../js/components/navbar.js"></script>
+<script src="../js/api/solicitudApi.js"></script>
+<script src="../js/api/userApi.js"></script>
+<script>
+    let currentFilters = {};
+    const userRole = auth.getUserRole();
+
+    async function cargarSolicitudes() {
+      const tbody = document.getElementById('solicitudesTableBody');
+      tbody.innerHTML = '<tr><td colspan="9"><div class="spinner"></div></td></tr>';
+
+      try {
+        const result = await solicitudApi.getAll(currentFilters);
+
+        if (result.success && result.data.length > 0) {
+          tbody.innerHTML = result.data.map(s => `
+            <tr>
+              <td>#${s.id}</td>
+              <td><a href="detalle-solicitud.html?id=${s.id}">${s.titulo}</a></td>
+              <td>${s.cliente_nombre || 'N/A'}</td>
+              <td>${s.categoria_nombre || 'N/A'}</td>
+              <td><span class="badge badge-${s.prioridad}">${s.prioridad}</span></td>
+              <td><span class="badge badge-${s.estado}">${s.estado.replace('_', ' ')}</span></td>
+              <td>${s.tecnico_nombre || 'Sin asignar'}</td>
+              <td>${new Date(s.fecha_creacion).toLocaleDateString()}</td>
+              <td>
+                <a href="detalle-solicitud.html?id=${s.id}" class="btn btn-sm btn-secondary">Ver</a>
+                ${(userRole === 'supervisor' || userRole === 'administrador') && s.estado === 'pendiente' ?
+                  `<button class="btn btn-sm btn-primary" onclick="mostrarAsignar(${s.id})">Asignar</button>` : ''}
+                ${s.estado !== 'resuelto' && s.estado !== 'cancelado' ?
+                  `<button class="btn btn-sm btn-warning" onclick="mostrarCambiarEstado(${s.id}, '${s.estado}')">Cambiar</button>` : ''}
+              </td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><p>No se encontraron solicitudes</p></div></td></tr>';
+        }
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><p class="text-danger">Error: ${error.message}</p></div></td></tr>`;
+      }
+    }
+
+    function mostrarCambiarEstado(id, estadoActual) {
+      document.getElementById('solicitudId').value = id;
+      document.getElementById('estadoModal').classList.remove('hidden');
+    }
+
+    document.getElementById('btnFiltrar').addEventListener('click', () => {
+      currentFilters = {};
+      const estado = document.getElementById('filterEstado').value;
+      const prioridad = document.getElementById('filterPrioridad').value;
+      const search = document.getElementById('filterSearch').value;
+
+      if (estado) currentFilters.estado = estado;
+      if (prioridad) currentFilters.prioridad = prioridad;
+      if (search) currentFilters.search = search;
+
+      cargarSolicitudes();
+    });
+
+    document.getElementById('btnLimpiar').addEventListener('click', () => {
+      document.getElementById('filterEstado').value = '';
+      document.getElementById('filterPrioridad').value = '';
+      document.getElementById('filterSearch').value = '';
+      currentFilters = {};
+      cargarSolicitudes();
+    });
+
+    document.getElementById('estadoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('solicitudId').value;
+      const estado = document.getElementById('nuevoEstado').value;
+      const comentario = document.getElementById('comentarioEstado').value;
+
+      try {
+        await solicitudApi.updateEstado(id, estado, comentario);
+        document.getElementById('estadoModal').classList.add('hidden');
+        errorHandler.show('Estado actualizado exitosamente', 'success');
+        cargarSolicitudes();
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!auth.requireAuth()) return;
+      cargarSolicitudes();
+    });
+</script>
+</body>
+</html>

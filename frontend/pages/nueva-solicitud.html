@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/config.js"></script>
+    <title>Nueva Solicitud - Sistema de Soporte Técnico</title>
+    <!-- Fuente e iconos profesionales -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Tu hoja de estilos original -->
+    <link rel="stylesheet" href="../css/main.css">
+    <!-- Mejoras de diseño -->
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+            --transition: 0.2s ease;
+            --error: #ef4444;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            width: 100%;
+            flex: 1;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cabecera */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            padding: 1.5rem 2rem;
+            border-radius: var(--radius);
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            letter-spacing: -0.025em;
+        }
+        .page-title i {
+            font-size: 1.8rem;
+            opacity: 0.9;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.6rem 1.4rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: var(--shadow-sm);
+            letter-spacing: -0.01em;
+            text-decoration: none;
+        }
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-secondary:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+            width: 100%;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 10px;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.5);
+        }
+
+        /* Tarjeta del formulario */
+        .form-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem 2.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        /* Grupos de formulario */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #334155;
+            margin-bottom: 0.4rem;
+        }
+        .input-icon-wrapper {
+            position: relative;
+        }
+        .input-icon-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            transition: color var(--transition);
+            pointer-events: none;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all var(--transition);
+            background: #f8fafc;
+            color: var(--text);
+            font-family: inherit;
+        }
+        textarea.form-control {
+            padding-left: 2.75rem;
+            min-height: 120px;
+            resize: vertical;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            background: white;
+        }
+        .input-icon-wrapper:focus-within i {
+            color: var(--primary);
+        }
+        /* Para selects, el padding-left se aplica directamente */
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 12px;
+            padding-right: 2.5rem;
+        }
+
+        /* Errores */
+        .form-error {
+            font-size: 0.8rem;
+            color: var(--error);
+            margin-top: 0.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .form-error i {
+            font-size: 0.8rem;
+        }
+
+        /* Spinner de carga */
+        .spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .form-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-plus-circle"></i> Nueva Solicitud</h1>
+        <a href="solicitudes.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Volver</a>
+    </div>
+
+    <div class="form-card">
+        <form id="solicitudForm">
+            <!-- Título -->
+            <div class="form-group">
+                <label for="titulo"><i class="fas fa-heading"></i> Título del problema *</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-pen"></i>
+                    <input type="text" id="titulo" class="form-control" placeholder="Describe brevemente el problema" minlength="5" required>
+                </div>
+                <span class="form-error" id="errorTitulo"></span>
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-group">
+                <label for="descripcion"><i class="fas fa-align-left"></i> Descripción detallada *</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-comment-alt" style="top:1rem; transform: none;"></i>
+                    <textarea id="descripcion" class="form-control" placeholder="Explica el problema con detalle..." minlength="10" required></textarea>
+                </div>
+                <span class="form-error" id="errorDescripcion"></span>
+            </div>
+
+            <!-- Categoría -->
+            <div class="form-group">
+                <label for="categoria"><i class="fas fa-tag"></i> Categoría *</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-layer-group"></i>
+                    <select id="categoria" class="form-control" required>
+                        <option value="">Seleccionar categoría...</option>
+                    </select>
+                </div>
+                <span class="form-error" id="errorCategoria"></span>
+            </div>
+
+            <!-- Prioridad -->
+            <div class="form-group">
+                <label for="prioridad"><i class="fas fa-flag"></i> Prioridad *</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <select id="prioridad" class="form-control" required>
+                        <option value="baja">Baja - No urgente</option>
+                        <option value="media" selected>Media - Atención normal</option>
+                        <option value="alta">Alta - Requiere atención pronta</option>
+                        <option value="critica">Crítica - Impacta operaciones</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Cliente (solo admin/supervisor) -->
+            <div class="form-group" id="clienteGroup" style="display:none;">
+                <label for="cliente"><i class="fas fa-building"></i> Cliente *</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-user-tie"></i>
+                    <select id="cliente" class="form-control">
+                        <option value="">Seleccionar cliente...</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> Enviar Solicitud
+            </button>
+        </form>
+    </div>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/utils/errorHandler.js"></script>
+<script src="../js/components/navbar.js"></script>
+<script src="../js/api/solicitudApi.js"></script>
+<script src="../js/api/clienteApi.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!auth.requireAuth()) return;
+
+      const userRole = auth.getUserRole();
+
+      // Cargar categorías con indicador visual opcional
+      const categoriaSelect = document.getElementById('categoria');
+      categoriaSelect.innerHTML += '<option disabled>Cargando...</option>';
+      try {
+        const catResult = await solicitudApi.getCategorias();
+        categoriaSelect.innerHTML = '<option value="">Seleccionar categoría...</option>';
+        if (catResult.success) {
+          catResult.data.forEach(cat => {
+            categoriaSelect.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
+          });
+        }
+      } catch (error) {
+        categoriaSelect.innerHTML = '<option value="">Error al cargar categorías</option>';
+        errorHandler.show('Error al cargar categorías', 'error');
+      }
+
+      // Si es admin/supervisor, mostrar selector de cliente
+      if (userRole === 'administrador' || userRole === 'supervisor') {
+        const clienteGroup = document.getElementById('clienteGroup');
+        clienteGroup.style.display = 'block';
+        const clienteSelect = document.getElementById('cliente');
+        clienteSelect.innerHTML += '<option disabled>Cargando...</option>';
+        try {
+          const clientesResult = await clienteApi.getAll({});
+          clienteSelect.innerHTML = '<option value="">Seleccionar cliente...</option>';
+          if (clientesResult.success) {
+            clientesResult.data.forEach(c => {
+              clienteSelect.innerHTML += `<option value="${c.id}">${c.nombre} (${c.empresa || 'Sin empresa'})</option>`;
+            });
+          }
+        } catch (error) {
+          clienteSelect.innerHTML = '<option value="">Error al cargar clientes</option>';
+          errorHandler.show('Error al cargar clientes', 'error');
+        }
+      }
+    });
+
+    document.getElementById('solicitudForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Limpiar errores previos y quitar iconos
+      document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+
+      const titulo = document.getElementById('titulo').value.trim();
+      const descripcion = document.getElementById('descripcion').value.trim();
+      const categoria_id = document.getElementById('categoria').value;
+      const prioridad = document.getElementById('prioridad').value;
+      const cliente_id = document.getElementById('cliente')?.value;
+
+      let hasError = false;
+
+      if (titulo.length < 5) {
+        document.getElementById('errorTitulo').innerHTML = '<i class="fas fa-exclamation-circle"></i> El título debe tener al menos 5 caracteres.';
+        hasError = true;
+      }
+
+      if (descripcion.length < 10) {
+        document.getElementById('errorDescripcion').innerHTML = '<i class="fas fa-exclamation-circle"></i> La descripción debe tener al menos 10 caracteres.';
+        hasError = true;
+      }
+
+      if (!categoria_id) {
+        document.getElementById('errorCategoria').innerHTML = '<i class="fas fa-exclamation-circle"></i> Selecciona una categoría.';
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      try {
+        const solicitudData = {
+          titulo,
+          descripcion,
+          categoria_id: parseInt(categoria_id),
+          prioridad
+        };
+
+        if (cliente_id) {
+          solicitudData.cliente_id = parseInt(cliente_id);
+        }
+
+        const result = await solicitudApi.create(solicitudData);
+
+        if (result.success) {
+          errorHandler.show('¡Solicitud creada exitosamente!', 'success');
+          setTimeout(() => {
+            window.location.href = 'solicitudes.html';
+          }, 1500);
+        }
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    });
+</script>
+</body>
+</html>

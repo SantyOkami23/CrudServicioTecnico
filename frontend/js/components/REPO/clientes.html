@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - Sistema de Soporte Técnico</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">🏢 Gestión de Clientes</h1>
+        <button class="btn btn-primary" onclick="mostrarModalCrear()">+ Nuevo Cliente</button>
+    </div>
+
+    <div class="filters-bar">
+        <div class="filter-group">
+            <label>Buscar</label>
+            <input type="text" id="filterSearch" placeholder="Nombre, empresa o email...">
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btnFiltrar">🔍 Buscar</button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Empresa</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="clientesTableBody">
+            <tr><td colspan="6"><div class="spinner"></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay hidden" id="clienteModal">
+    <div class="modal">
+        <h2 id="modalTitle">Nuevo Cliente</h2>
+        <form id="clienteForm">
+            <input type="hidden" id="clienteId">
+            <div class="form-group">
+                <label>Nombre *</label>
+                <input type="text" id="clienteNombre" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Empresa</label>
+                <input type="text" id="clienteEmpresa" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Email *</label>
+                <input type="email" id="clienteEmail" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="text" id="clienteTelefono" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Dirección</label>
+                <textarea id="clienteDireccion" class="form-control"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('clienteModal').classList.add('hidden')">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/utils/errorHandler.js"></script>
+<script src="../js/components/navbar.js"></script>
+<script src="../js/api/clienteApi.js"></script>
+<script>
+    let isEditing = false;
+
+    async function cargarClientes(search = '') {
+      const tbody = document.getElementById('clientesTableBody');
+      tbody.innerHTML = '<tr><td colspan="6"><div class="spinner"></div></td></tr>';
+
+      try {
+        const result = await clienteApi.getAll(search ? { search } : {});
+        if (result.success && result.data.length > 0) {
+          tbody.innerHTML = result.data.map(c => `
+            <tr>
+              <td>#${c.id}</td>
+              <td>${c.nombre}</td>
+              <td>${c.empresa || '-'}</td>
+              <td>${c.email}</td>
+              <td>${c.telefono || '-'}</td>
+              <td>
+                <button class="btn btn-sm btn-warning" onclick="editarCliente(${c.id})">Editar</button>
+                <button class="btn btn-sm btn-danger" onclick="eliminarCliente(${c.id}, '${c.nombre}')">Eliminar</button>
+              </td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>No se encontraron clientes</p></div></td></tr>';
+        }
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><p class="text-danger">Error: ${error.message}</p></div></td></tr>`;
+      }
+    }
+
+    function mostrarModalCrear() {
+      isEditing = false;
+      document.getElementById('modalTitle').textContent = 'Nuevo Cliente';
+      document.getElementById('clienteId').value = '';
+      document.getElementById('clienteNombre').value = '';
+      document.getElementById('clienteEmpresa').value = '';
+      document.getElementById('clienteEmail').value = '';
+      document.getElementById('clienteTelefono').value = '';
+      document.getElementById('clienteDireccion').value = '';
+      document.getElementById('clienteModal').classList.remove('hidden');
+    }
+
+    async function editarCliente(id) {
+      try {
+        const result = await clienteApi.getById(id);
+        if (result.success) {
+          const c = result.data;
+          isEditing = true;
+          document.getElementById('modalTitle').textContent = 'Editar Cliente';
+          document.getElementById('clienteId').value = c.id;
+          document.getElementById('clienteNombre').value = c.nombre;
+          document.getElementById('clienteEmpresa').value = c.empresa || '';
+          document.getElementById('clienteEmail').value = c.email;
+          document.getElementById('clienteTelefono').value = c.telefono || '';
+          document.getElementById('clienteDireccion').value = c.direccion || '';
+          document.getElementById('clienteModal').classList.remove('hidden');
+        }
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    }
+
+    async function eliminarCliente(id, nombre) {
+      if (!confirm(`¿Eliminar al cliente "${nombre}"?`)) return;
+      try {
+        await clienteApi.delete(id);
+        errorHandler.show('Cliente eliminado exitosamente', 'success');
+        cargarClientes();
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    }
+
+    document.getElementById('clienteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        nombre: document.getElementById('clienteNombre').value,
+        empresa: document.getElementById('clienteEmpresa').value,
+        email: document.getElementById('clienteEmail').value,
+        telefono: document.getElementById('clienteTelefono').value,
+        direccion: document.getElementById('clienteDireccion').value
+      };
+
+      try {
+        const id = document.getElementById('clienteId').value;
+        if (isEditing && id) {
+          await clienteApi.update(id, data);
+          errorHandler.show('Cliente actualizado exitosamente', 'success');
+        } else {
+          await clienteApi.create(data);
+          errorHandler.show('Cliente creado exitosamente', 'success');
+        }
+        document.getElementById('clienteModal').classList.add('hidden');
+        cargarClientes();
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    });
+
+    document.getElementById('btnFiltrar').addEventListener('click', () => {
+      cargarClientes(document.getElementById('filterSearch').value);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!auth.requireAuth()) return;
+      cargarClientes();
+    });
+</script>
+</body>
+</html>

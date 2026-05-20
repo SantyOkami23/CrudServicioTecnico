@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorías - Sistema de Soporte Técnico</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">📂 Categorías de Soporte</h1>
+        <button class="btn btn-primary" id="btnNueva">+ Nueva Categoría</button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="categoriasBody">
+            <tr><td colspan="5"><div class="spinner"></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay hidden" id="catModal">
+    <div class="modal">
+        <h2 id="catModalTitle">Nueva Categoría</h2>
+        <form id="catForm">
+            <input type="hidden" id="catId">
+            <div class="form-group">
+                <label>Nombre *</label>
+                <input type="text" id="catNombre" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea id="catDescripcion" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Estado</label>
+                <select id="catActivo" class="form-control">
+                    <option value="true">Activo</option>
+                    <option value="false">Inactivo</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('catModal').classList.add('hidden')">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/utils/errorHandler.js"></script>
+<script src="../js/components/navbar.js"></script>
+<script src="../js/api/solicitudApi.js"></script>
+<script>
+    let isEditing = false;
+
+    async function cargarCategorias() {
+      const tbody = document.getElementById('categoriasBody');
+      try {
+        const result = await solicitudApi.getCategorias();
+        if (result.success) {
+          tbody.innerHTML = result.data.map(c => `
+            <tr>
+              <td>#${c.id}</td>
+              <td>${c.nombre}</td>
+              <td>${c.descripcion || '—'}</td>
+              <td><span class="badge ${c.activo ? 'badge-resuelto' : 'badge-cancelado'}">${c.activo ? 'Activo' : 'Inactivo'}</span></td>
+              <td>
+                <button class="btn btn-sm btn-warning" onclick="editarCat(${c.id})">Editar</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="5"><p class="text-danger">Error: ${error.message}</p></td></tr>`;
+      }
+    }
+
+    async function editarCat(id) {
+      const token = auth.getToken();
+      const response = await fetch(`http://localhost:3000/api/categorias/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const result = await response.json();
+      if (result.success) {
+        isEditing = true;
+        document.getElementById('catModalTitle').textContent = 'Editar Categoría';
+        document.getElementById('catId').value = result.data.id;
+        document.getElementById('catNombre').value = result.data.nombre;
+        document.getElementById('catDescripcion').value = result.data.descripcion || '';
+        document.getElementById('catActivo').value = result.data.activo ? 'true' : 'false';
+        document.getElementById('catModal').classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('btnNueva').addEventListener('click', () => {
+      isEditing = false;
+      document.getElementById('catModalTitle').textContent = 'Nueva Categoría';
+      document.getElementById('catId').value = '';
+      document.getElementById('catNombre').value = '';
+      document.getElementById('catDescripcion').value = '';
+      document.getElementById('catActivo').value = 'true';
+      document.getElementById('catModal').classList.remove('hidden');
+    });
+
+    document.getElementById('catForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = auth.getToken();
+      const data = {
+        nombre: document.getElementById('catNombre').value,
+        descripcion: document.getElementById('catDescripcion').value,
+        activo: document.getElementById('catActivo').value === 'true'
+      };
+
+      try {
+        const id = document.getElementById('catId').value;
+        const url = isEditing ? `http://localhost:3000/api/categorias/${id}` : 'http://localhost:3000/api/categorias';
+        const method = isEditing ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          errorHandler.show(isEditing ? 'Categoría actualizada' : 'Categoría creada', 'success');
+          document.getElementById('catModal').classList.add('hidden');
+          cargarCategorias();
+        } else {
+          errorHandler.show(result.message, 'error');
+        }
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!auth.requireAuth()) return;
+      cargarCategorias();
+    });
+</script>
+</body>
+</html>

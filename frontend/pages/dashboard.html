@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/config.js"></script>
+    <title>Dashboard - Sistema de Soporte Técnico</title>
+    <!-- Fuente e iconos profesionales -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Tu hoja de estilos original -->
+    <link rel="stylesheet" href="../css/main.css">
+    <!-- Mejoras de diseño -->
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+            --transition: 0.2s ease;
+            --pendiente: #f59e0b;
+            --en-proceso: #3b82f6;
+            --resuelta: #10b981;
+            --cancelada: #ef4444;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            width: 100%;
+            flex: 1;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cabecera */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            padding: 1.5rem 2rem;
+            border-radius: var(--radius);
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            letter-spacing: -0.025em;
+        }
+        .page-title i {
+            font-size: 1.8rem;
+            opacity: 0.9;
+        }
+        /* Sub-header para secciones */
+        .section-header {
+            background: transparent;
+            box-shadow: none;
+            color: var(--text);
+            padding: 1rem 0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Grid de estadísticas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem 1.75rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+        }
+        .stat-card.pendiente::before { background: var(--pendiente); }
+        .stat-card.en-proceso::before { background: var(--en-proceso); }
+        .stat-card.resuelta::before { background: var(--resuelta); }
+        .stat-card.cancelada::before { background: var(--cancelada); }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .stat-card.pendiente .stat-icon {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .stat-card.en-proceso .stat-icon {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        .stat-card.resuelta .stat-icon {
+            background: #d1fae5;
+            color: #059669;
+        }
+        .stat-card.cancelada .stat-icon {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .stat-info h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.025em;
+            color: #0f172a;
+        }
+        .stat-card.pendiente .stat-info h3 { color: #b45309; }
+        .stat-card.en-proceso .stat-info h3 { color: #1d4ed8; }
+        .stat-card.resuelta .stat-info h3 { color: #047857; }
+        .stat-card.cancelada .stat-info h3 { color: #b91c1c; }
+
+        .stat-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 0.15rem;
+        }
+
+        /* Tabla */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 0.9rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text);
+        }
+        tbody tr {
+            transition: background var(--transition);
+        }
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badges mejorados */
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.75em;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            text-transform: capitalize;
+        }
+        .badge-prioridad-alta { background: #fee2e2; color: #991b1b; }
+        .badge-prioridad-media { background: #fef3c7; color: #92400e; }
+        .badge-prioridad-baja { background: #dbeafe; color: #1e40af; }
+        .badge-estado-pendiente { background: #fef3c7; color: #92400e; }
+        .badge-estado-en_proceso { background: #dbeafe; color: #1e40af; }
+        .badge-estado-en_progreso { background: #dbeafe; color: #1e40af; } /* por si acaso */
+        .badge-estado-resuelta { background: #d1fae5; color: #065f46; }
+        .badge-estado-cancelada { background: #fee2e2; color: #991b1b; }
+        .badge-estado-en{ background: #e2e8f0; color: #475569; } /* fallback */
+
+        /* Enlaces en tabla */
+        td a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        td a:hover {
+            text-decoration: underline;
+        }
+
+        /* Skeleton / Spinner */
+        .spinner {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            th, td {
+                padding: 0.75rem 1rem;
+            }
+            .stat-card {
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Cabecera principal -->
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-chart-pie"></i> Dashboard</h1>
+    </div>
+
+    <!-- Tarjetas de estadísticas -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card pendiente">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-info">
+                <h3 id="statPendientes">-</h3>
+                <p>Pendientes</p>
+            </div>
+        </div>
+        <div class="stat-card en-proceso">
+            <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+            <div class="stat-info">
+                <h3 id="statEnProceso">-</h3>
+                <p>En Proceso</p>
+            </div>
+        </div>
+        <div class="stat-card resuelta">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+                <h3 id="statResueltas">-</h3>
+                <p>Resueltas</p>
+            </div>
+        </div>
+        <div class="stat-card cancelada">
+            <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+            <div class="stat-info">
+                <h3 id="statCanceladas">-</h3>
+                <p>Canceladas</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de solicitudes recientes -->
+    <div class="page-header section-header">
+        <h2 style="font-size:1.25rem;"><i class="fas fa-list-alt"></i> Solicitudes Recientes</h2>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Cliente</th>
+                <th>Categoría</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+            </tr>
+            </thead>
+            <tbody id="recentSolicitudes">
+            <!-- Skeleton loader mientras carga -->
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 2rem;">
+                    <div class="spinner"></div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/utils/errorHandler.js"></script>
+<script src="../js/components/navbar.js"></script>
+<script src="../js/api/solicitudApi.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!auth.requireAuth()) return;
+
+      try {
+        // Cargar estadísticas (solo para supervisor/admin)
+        const rol = auth.getUserRole();
+        if (rol === 'supervisor' || rol === 'administrador') {
+          const statsResult = await solicitudApi.getEstadisticas();
+          if (statsResult.success) {
+            const stats = statsResult.data;
+            document.getElementById('statPendientes').textContent = stats.pendientes || 0;
+            document.getElementById('statEnProceso').textContent = stats.en_proceso || 0;
+            document.getElementById('statResueltas').textContent = stats.resueltas || 0;
+            document.getElementById('statCanceladas').textContent = stats.canceladas || 0;
+          }
+        } else {
+          // Para otros roles, ocultar estadísticas o mostrar sus propias
+          document.getElementById('statsGrid').style.display = 'none';
+        }
+
+        // Cargar solicitudes recientes
+        const result = await solicitudApi.getAll({});
+        const tbody = document.getElementById('recentSolicitudes');
+
+        if (result.success && result.data.length > 0) {
+          const recientes = result.data.slice(0, 10);
+          tbody.innerHTML = recientes.map(s => {
+            // Normalizar estado para la clase CSS (reemplazar espacios por nada o guiones bajos)
+            const estadoClase = s.estado.replace(/ /g, '_').toLowerCase();
+            return `
+            <tr>
+              <td><span style="font-weight:600;color:var(--primary);">#${s.id}</span></td>
+              <td><a href="detalle-solicitud.html?id=${s.id}"><i class="fas fa-external-link-alt" style="font-size:0.7rem;margin-right:0.3rem;"></i>${s.titulo}</a></td>
+              <td>${s.cliente_nombre || 'N/A'}</td>
+              <td>${s.categoria_nombre || 'N/A'}</td>
+              <td><span class="badge badge-prioridad-${s.prioridad}">${s.prioridad}</span></td>
+              <td><span class="badge badge-estado-${estadoClase}">${s.estado.replace('_', ' ')}</span></td>
+              <td>${new Date(s.fecha_creacion).toLocaleDateString()}</td>
+            </tr>
+          `}).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-inbox"></i><p>No hay solicitudes registradas</p></div></td></tr>';
+        }
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    });
+</script>
+</body>
+</html>

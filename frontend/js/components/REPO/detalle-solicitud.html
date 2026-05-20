@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Solicitud - Sistema de Soporte Técnico</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">📄 Detalle de Solicitud</h1>
+        <a href="solicitudes.html" class="btn btn-secondary">← Volver</a>
+    </div>
+
+    <div id="solicitudDetail">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="historialSection" style="margin-top:2rem;">
+        <h2 style="font-size:1.25rem;margin-bottom:1rem;">📜 Historial de Cambios</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Estado Anterior</th>
+                    <th>Estado Nuevo</th>
+                    <th>Usuario</th>
+                    <th>Comentario</th>
+                </tr>
+                </thead>
+                <tbody id="historialBody">
+                <tr><td colspan="5">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/utils/errorHandler.js"></script>
+<script src="../js/components/navbar.js"></script>
+<script src="../js/api/solicitudApi.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!auth.requireAuth()) return;
+
+      const params = new URLSearchParams(window.location.search);
+      const solicitudId = params.get('id');
+
+      if (!solicitudId) {
+        document.getElementById('solicitudDetail').innerHTML = '<p class="text-danger">ID de solicitud no especificado.</p>';
+        return;
+      }
+
+      try {
+        const result = await solicitudApi.getById(solicitudId);
+
+        if (result.success) {
+          const s = result.data;
+          document.getElementById('solicitudDetail').innerHTML = `
+            <div class="form-card" style="max-width:100%;">
+              <div class="flex justify-between items-center mb-2">
+                <h2>#${s.id} - ${s.titulo}</h2>
+                <span class="badge badge-${s.estado}" style="font-size:1rem;">${s.estado.replace('_', ' ')}</span>
+              </div>
+
+              <div class="flex gap-2 mb-2">
+                <span class="badge badge-${s.prioridad}">Prioridad: ${s.prioridad}</span>
+                <span class="badge badge-en_proceso">Categoría: ${s.categoria_nombre}</span>
+              </div>
+
+              <div style="background:var(--gray-50);padding:1rem;border-radius:var(--radius);margin-bottom:1rem;">
+                <p style="white-space:pre-wrap;">${s.descripcion}</p>
+              </div>
+
+              <div class="flex gap-2" style="flex-wrap:wrap;">
+                <div style="flex:1;min-width:200px;">
+                  <strong>Cliente:</strong>
+                  <p>${s.cliente_nombre}</p>
+                  <p class="text-muted">${s.cliente_empresa || ''}</p>
+                  <p class="text-muted">${s.cliente_email}</p>
+                </div>
+                <div style="flex:1;min-width:200px;">
+                  <strong>Técnico Asignado:</strong>
+                  <p>${s.tecnico_nombre || 'Sin asignar'}</p>
+                  <p class="text-muted">${s.tecnico_email || ''}</p>
+                </div>
+                <div style="flex:1;min-width:200px;">
+                  <strong>Fechas:</strong>
+                  <p class="text-muted">Creado: ${new Date(s.fecha_creacion).toLocaleString()}</p>
+                  ${s.fecha_asignacion ? `<p class="text-muted">Asignado: ${new Date(s.fecha_asignacion).toLocaleString()}</p>` : ''}
+                  ${s.fecha_resolucion ? `<p class="text-muted">Resuelto: ${new Date(s.fecha_resolucion).toLocaleString()}</p>` : ''}
+                </div>
+              </div>
+
+              ${s.comentario_resolucion ? `
+                <div style="margin-top:1rem;padding:1rem;background:#dcfce7;border-radius:var(--radius);">
+                  <strong>✅ Comentario de resolución:</strong>
+                  <p>${s.comentario_resolucion}</p>
+                </div>
+              ` : ''}
+            </div>
+          `;
+
+          // Historial
+          if (s.historial && s.historial.length > 0) {
+            document.getElementById('historialBody').innerHTML = s.historial.map(h => `
+              <tr>
+                <td>${new Date(h.fecha_cambio).toLocaleString()}</td>
+                <td>${h.estado_anterior || '—'}</td>
+                <td><span class="badge badge-${h.estado_nuevo}">${h.estado_nuevo.replace('_', ' ')}</span></td>
+                <td>${h.usuario_nombre}</td>
+                <td>${h.comentario || '—'}</td>
+              </tr>
+            `).join('');
+          } else {
+            document.getElementById('historialBody').innerHTML = '<tr><td colspan="5">Sin historial</td></tr>';
+          }
+        }
+      } catch (error) {
+        document.getElementById('solicitudDetail').innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
+      }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/config.js"></script>
+    <title>Detalle Solicitud - Sistema de Soporte Técnico</title>
+    <!-- Fuente e iconos profesionales -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Tu hoja de estilos original -->
+    <link rel="stylesheet" href="../css/main.css">
+    <!-- Mejoras de diseño -->
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+            --transition: 0.2s ease;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            width: 100%;
+            flex: 1;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cabecera */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            padding: 1.5rem 2rem;
+            border-radius: var(--radius);
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            letter-spacing: -0.025em;
+        }
+        .page-title i {
+            font-size: 1.8rem;
+            opacity: 0.9;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.6rem 1.4rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: var(--shadow-sm);
+            letter-spacing: -0.01em;
+            text-decoration: none;
+        }
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-secondary:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+
+        /* Tarjeta de detalle */
+        .detail-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.25rem;
+        }
+        .detail-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .detail-title span {
+            font-weight: 500;
+            color: var(--primary);
+        }
+        .badges-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.8em;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            text-transform: capitalize;
+        }
+        .badge-estado-pendiente { background: #fef3c7; color: #92400e; }
+        .badge-estado-en_proceso { background: #dbeafe; color: #1e40af; }
+        .badge-estado-resuelta { background: #d1fae5; color: #065f46; }
+        .badge-estado-cancelada { background: #fee2e2; color: #991b1b; }
+        .badge-prioridad-alta { background: #fee2e2; color: #991b1b; }
+        .badge-prioridad-media { background: #fef3c7; color: #92400e; }
+        .badge-prioridad-baja { background: #dbeafe; color: #1e40af; }
+
+        .description-box {
+            background: #f1f5f9;
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            white-space: pre-wrap;
+            color: #334155;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .info-block strong {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .info-block p {
+            margin-bottom: 0.25rem;
+        }
+        .text-muted {
+            color: var(--text-muted);
+        }
+
+        .resolucion-box {
+            margin-top: 1rem;
+            padding: 1.25rem;
+            background: #d1fae5;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+
+        /* Tabla de historial */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2rem 0 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 0.9rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text);
+        }
+        tbody tr {
+            transition: background var(--transition);
+        }
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 2rem auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        .empty-state i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        @media (max-width: 640px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .detail-card {
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-file-alt"></i> Detalle de Solicitud</h1>
+        <a href="solicitudes.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Volver</a>
+    </div>
+
+    <!-- Contenedor del detalle (inicialmente con spinner) -->
+    <div id="solicitudDetail">
+        <div style="text-align: center; padding: 3rem;">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- Sección de historial -->
+    <div id="historialSection" style="margin-top:2rem;">
+        <div class="section-header">
+            <i class="fas fa-history"></i>
+            <h2 style="font-size:1.25rem;">Historial de Cambios</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Estado Anterior</th>
+                    <th>Estado Nuevo</th>
+                    <th>Usuario</th>
+                    <th>Comentario</th>
+                </tr>
+                </thead>
+                <tbody id="historialBody">
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner fa-pulse"></i>
+                            <span>Cargando...</span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/utils/errorHandler.js"></script>
+<script src="../js/components/navbar.js"></script>
+<script src="../js/api/solicitudApi.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!auth.requireAuth()) return;
+
+      const params = new URLSearchParams(window.location.search);
+      const solicitudId = params.get('id');
+
+      if (!solicitudId) {
+        document.getElementById('solicitudDetail').innerHTML = '<p class="text-danger" style="padding:2rem;text-align:center;"><i class="fas fa-exclamation-circle"></i> ID de solicitud no especificado.</p>';
+        return;
+      }
+
+      try {
+        const result = await solicitudApi.getById(solicitudId);
+
+        if (result.success) {
+          const s = result.data;
+          // Normalizar clases de badge para estado
+          const estadoClase = s.estado.replace(/ /g, '_').toLowerCase();
+          const prioridadClase = s.prioridad ? s.prioridad.toLowerCase() : '';
+
+          document.getElementById('solicitudDetail').innerHTML = `
+            <div class="detail-card">
+              <div class="detail-header">
+                <div class="detail-title">
+                  <i class="fas fa-ticket-alt" style="color:var(--primary);"></i>
+                  <span>#${s.id}</span> - ${s.titulo}
+                </div>
+                <span class="badge badge-estado-${estadoClase}" style="font-size:0.9rem;">${s.estado.replace('_', ' ')}</span>
+              </div>
+
+              <div class="badges-group">
+                <span class="badge badge-prioridad-${prioridadClase}"><i class="fas fa-flag"></i> ${s.prioridad}</span>
+                <span class="badge" style="background:#e2e8f0;color:#475569;"><i class="fas fa-tag"></i> ${s.categoria_nombre}</span>
+              </div>
+
+              <div class="description-box">
+                <p>${s.descripcion}</p>
+              </div>
+
+              <div class="info-grid">
+                <div class="info-block">
+                  <strong><i class="fas fa-user"></i> Cliente</strong>
+                  <p>${s.cliente_nombre}</p>
+                  ${s.cliente_empresa ? `<p class="text-muted">${s.cliente_empresa}</p>` : ''}
+                  <p class="text-muted">${s.cliente_email}</p>
+                </div>
+                <div class="info-block">
+                  <strong><i class="fas fa-headset"></i> Técnico Asignado</strong>
+                  <p>${s.tecnico_nombre || 'Sin asignar'}</p>
+                  ${s.tecnico_email ? `<p class="text-muted">${s.tecnico_email}</p>` : ''}
+                </div>
+                <div class="info-block">
+                  <strong><i class="fas fa-calendar-alt"></i> Fechas</strong>
+                  <p class="text-muted">Creado: ${new Date(s.fecha_creacion).toLocaleString()}</p>
+                  ${s.fecha_asignacion ? `<p class="text-muted">Asignado: ${new Date(s.fecha_asignacion).toLocaleString()}</p>` : ''}
+                  ${s.fecha_resolucion ? `<p class="text-muted">Resuelto: ${new Date(s.fecha_resolucion).toLocaleString()}</p>` : ''}
+                </div>
+              </div>
+
+              ${s.comentario_resolucion ? `
+                <div class="resolucion-box">
+                  <strong><i class="fas fa-check-circle"></i> Comentario de resolución:</strong>
+                  <p>${s.comentario_resolucion}</p>
+                </div>
+              ` : ''}
+            </div>
+          `;
+
+          // Historial
+          const historialBody = document.getElementById('historialBody');
+          if (s.historial && s.historial.length > 0) {
+            historialBody.innerHTML = s.historial.map(h => {
+              const estadoNuevoClase = h.estado_nuevo ? h.estado_nuevo.replace(/ /g, '_').toLowerCase() : '';
+              return `
+              <tr>
+                <td>${new Date(h.fecha_cambio).toLocaleString()}</td>
+                <td>${h.estado_anterior || '—'}</td>
+                <td><span class="badge badge-estado-${estadoNuevoClase}">${h.estado_nuevo ? h.estado_nuevo.replace('_', ' ') : '—'}</span></td>
+                <td>${h.usuario_nombre}</td>
+                <td>${h.comentario || '—'}</td>
+              </tr>
+            `}).join('');
+          } else {
+            historialBody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-info-circle"></i> Sin historial registrado</div></td></tr>';
+          }
+        }
+      } catch (error) {
+        document.getElementById('solicitudDetail').innerHTML = `<p class="text-danger" style="padding:2rem;text-align:center;"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</p>`;
+      }
+    });
+</script>
+</body>
+</html>

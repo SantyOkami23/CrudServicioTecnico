@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/config.js"></script>
+    <title>Solicitudes - Sistema de Soporte Técnico</title>
+
+    <!-- Fuente e iconos profesionales -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Tu hoja de estilos original -->
+    <link rel="stylesheet" href="../css/main.css">
+    <!-- Mejoras de diseño -->
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+            --transition: 0.2s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            width: 100%;
+            flex: 1;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cabecera */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            padding: 1.5rem 2rem;
+            border-radius: var(--radius);
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            letter-spacing: -0.025em;
+        }
+        .page-title i { font-size: 1.8rem; opacity: 0.9; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.6rem 1.4rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: var(--shadow-sm);
+            letter-spacing: -0.01em;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-primary:hover { background: #f8fafc; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #334155;
+        }
+        .btn-secondary:hover { background: #cbd5e1; }
+        .btn-warning {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.35rem 1rem;
+            font-size: 0.8rem;
+        }
+        .btn-warning:hover { background: #fde68a; }
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 0.35rem 1rem;
+            font-size: 0.8rem;
+        }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-sm {
+            padding: 0.35rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        /* Filtros */
+        .filters-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background: var(--card-bg);
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            flex: 1;
+            min-width: 150px;
+        }
+        .filter-group label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .filter-group select,
+        .filter-group input {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: #f8fafc;
+            color: var(--text);
+            font-family: inherit;
+            transition: all var(--transition);
+        }
+        .filter-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 10px;
+            padding-right: 2rem;
+        }
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+            background: white;
+        }
+        #btnFiltrar, #btnLimpiar {
+            align-self: flex-end;
+            margin-bottom: 0.15rem;
+        }
+
+        /* Tabla */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 0.9rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text);
+        }
+        tbody tr { transition: background var(--transition); }
+        tbody tr:hover { background: #f8fafc; }
+        tbody tr:last-child td { border-bottom: none; }
+
+        /* Badges (se mantienen clases originales para que el script funcione) */
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.75em;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        .badge-pendiente, .badge-pendiente { background: #fef3c7; color: #92400e; }
+        .badge-en_proceso, .badge-en_proceso { background: #dbeafe; color: #1e40af; }
+        .badge-resuelto, .badge-resuelto { background: #d1fae5; color: #065f46; }
+        .badge-cancelado, .badge-cancelado { background: #fee2e2; color: #991b1b; }
+        .badge-baja { background: #e2e8f0; color: #475569; }
+        .badge-media { background: #fef3c7; color: #92400e; }
+        .badge-alta { background: #fee2e2; color: #991b1b; }
+        .badge-critica { background: #fce7f3; color: #9d174d; }
+
+        /* Enlaces en tabla */
+        td a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        td a:hover { text-decoration: underline; }
+
+        /* Spinner / vacío */
+        .spinner {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        .empty-state i { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.hidden { display: none; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem 2.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+            border: 1px solid var(--border);
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #334155;
+            margin-bottom: 0.4rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.65rem 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color var(--transition), box-shadow var(--transition);
+            background: #f8fafc;
+            color: var(--text);
+            font-family: inherit;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+            background: white;
+        }
+        textarea.form-control { resize: vertical; min-height: 80px; }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .filters-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-group {
+                min-width: 100%;
+            }
+            #btnFiltrar, #btnLimpiar {
+                align-self: stretch;
+            }
+        }
+        @media (max-width: 640px) {
+            .page-header { flex-direction: column; align-items: flex-start; }
+            th, td { padding: 0.75rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-clipboard-list"></i> Solicitudes de Soporte</h1>
+        <a href="nueva-solicitud.html" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Nueva Solicitud</a>
+    </div>
+
+    <!-- Filtros mejorados -->
+    <div class="filters-bar" id="filtersBar">
+        <div class="filter-group">
+            <label><i class="fas fa-tasks"></i> Estado</label>
+            <select id="filterEstado">
+                <option value="">Todos</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="en_proceso">En Proceso</option>
+                <option value="resuelto">Resuelto</option>
+                <option value="cancelado">Cancelado</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-flag"></i> Prioridad</label>
+            <select id="filterPrioridad">
+                <option value="">Todas</option>
+                <option value="baja">Baja</option>
+                <option value="media">Media</option>
+                <option value="alta">Alta</option>
+                <option value="critica">Crítica</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-search"></i> Buscar</label>
+            <input type="text" id="filterSearch" placeholder="Título o descripción...">
+        </div>
+        <button class="btn btn-secondary" id="btnFiltrar"><i class="fas fa-filter"></i> Filtrar</button>
+        <button class="btn btn-secondary" id="btnLimpiar"><i class="fas fa-times"></i> Limpiar</button>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Cliente</th>
+                <th>Categoría</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Técnico</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="solicitudesTableBody">
+            <tr><td colspan="9" style="text-align:center;padding:2rem;"><div class="spinner"></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para cambiar estado -->
+<div class="modal-overlay hidden" id="estadoModal">
+    <div class="modal">
+        <h2><i class="fas fa-exchange-alt"></i> Actualizar Estado</h2>
+        <form id="estadoForm">
+            <input type="hidden" id="solicitudId">
+            <div class="form-group">
+                <label for="nuevoEstado"><i class="fas fa-tag"></i> Nuevo Estado</label>
+                <select id="nuevoEstado" class="form-control" required>
+                    <option value="">Seleccionar...</option>
+                    <option value="en_proceso">En Proceso</option>
+                    <option value="resuelto">Resuelto</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="comentarioEstado"><i class="fas fa-comment"></i> Comentario</label>
+                <textarea id="comentarioEstado" class="form-control" placeholder="Motivo del cambio de estado..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="cancelarEstadoBtn">Cancelar</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Actualizar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/utils/errorHandler.js"></script>
+<script src="../js/components/navbar.js"></script>
+<script src="../js/api/solicitudApi.js"></script>
+<script src="../js/api/userApi.js"></script>
+<script>
+    let currentFilters = {};
+    const userRole = auth.getUserRole();
+
+    async function cargarSolicitudes() {
+      const tbody = document.getElementById('solicitudesTableBody');
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;"><div class="spinner"></div></td></tr>';
+
+      try {
+        const result = await solicitudApi.getAll(currentFilters);
+
+        if (result.success && result.data.length > 0) {
+          tbody.innerHTML = result.data.map(s => `
+            <tr>
+              <td><span style="font-weight:600;color:var(--primary);">#${s.id}</span></td>
+              <td><a href="detalle-solicitud.html?id=${s.id}"><i class="fas fa-external-link-alt" style="font-size:0.7rem;margin-right:0.3rem;"></i>${s.titulo}</a></td>
+              <td>${s.cliente_nombre || 'N/A'}</td>
+              <td>${s.categoria_nombre || 'N/A'}</td>
+              <td><span class="badge badge-${s.prioridad}">${s.prioridad}</span></td>
+              <td><span class="badge badge-${s.estado}">${s.estado.replace('_', ' ')}</span></td>
+              <td>${s.tecnico_nombre || 'Sin asignar'}</td>
+              <td>${new Date(s.fecha_creacion).toLocaleDateString()}</td>
+              <td style="white-space:nowrap;">
+                <a href="detalle-solicitud.html?id=${s.id}" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i> Ver</a>
+                ${(userRole === 'supervisor' || userRole === 'administrador') && s.estado === 'pendiente' ?
+                  `<button class="btn btn-sm btn-primary" onclick="mostrarAsignar(${s.id})"><i class="fas fa-user-plus"></i> Asignar</button>` : ''}
+                ${s.estado !== 'resuelto' && s.estado !== 'cancelado' ?
+                  `<button class="btn btn-sm btn-warning" onclick="mostrarCambiarEstado(${s.id}, '${s.estado}')"><i class="fas fa-edit"></i> Cambiar</button>` : ''}
+              </td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><i class="fas fa-inbox"></i><p>No se encontraron solicitudes</p></div></td></tr>';
+        }
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="fas fa-exclamation-circle" style="color:#ef4444;"></i><p class="text-danger">Error: ${error.message}</p></div></td></tr>`;
+      }
+    }
+
+    function mostrarCambiarEstado(id, estadoActual) {
+      document.getElementById('solicitudId').value = id;
+      document.getElementById('estadoModal').classList.remove('hidden');
+    }
+
+    // Mejoras de UX: cerrar modal con cancelar, overlay o Escape
+    document.getElementById('cancelarEstadoBtn').addEventListener('click', () => {
+      document.getElementById('estadoModal').classList.add('hidden');
+    });
+    document.getElementById('estadoModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('estadoModal')) {
+        document.getElementById('estadoModal').classList.add('hidden');
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !document.getElementById('estadoModal').classList.contains('hidden')) {
+        document.getElementById('estadoModal').classList.add('hidden');
+      }
+    });
+
+    document.getElementById('btnFiltrar').addEventListener('click', () => {
+      currentFilters = {};
+      const estado = document.getElementById('filterEstado').value;
+      const prioridad = document.getElementById('filterPrioridad').value;
+      const search = document.getElementById('filterSearch').value;
+
+      if (estado) currentFilters.estado = estado;
+      if (prioridad) currentFilters.prioridad = prioridad;
+      if (search) currentFilters.search = search;
+
+      cargarSolicitudes();
+    });
+
+    document.getElementById('btnLimpiar').addEventListener('click', () => {
+      document.getElementById('filterEstado').value = '';
+      document.getElementById('filterPrioridad').value = '';
+      document.getElementById('filterSearch').value = '';
+      currentFilters = {};
+      cargarSolicitudes();
+    });
+
+    document.getElementById('estadoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('solicitudId').value;
+      const estado = document.getElementById('nuevoEstado').value;
+      const comentario = document.getElementById('comentarioEstado').value;
+
+      try {
+        await solicitudApi.updateEstado(id, estado, comentario);
+        document.getElementById('estadoModal').classList.add('hidden');
+        errorHandler.show('Estado actualizado exitosamente', 'success');
+        cargarSolicitudes();
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!auth.requireAuth()) return;
+      cargarSolicitudes();
+    });
+</script>
+</body>
+</html>

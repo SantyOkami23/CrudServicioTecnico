@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Solicitud - Sistema de Soporte Técnico</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">➕ Nueva Solicitud de Soporte</h1>
+        <a href="solicitudes.html" class="btn btn-secondary">← Volver</a>
+    </div>
+
+    <div class="form-card">
+        <form id="solicitudForm">
+            <div class="form-group">
+                <label for="titulo">Título del problema *</label>
+                <input type="text" id="titulo" class="form-control" placeholder="Describe brevemente el problema" minlength="5" required>
+                <span class="form-error" id="errorTitulo"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion">Descripción detallada *</label>
+                <textarea id="descripcion" class="form-control" placeholder="Explica el problema con detalle..." minlength="10" required></textarea>
+                <span class="form-error" id="errorDescripcion"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="categoria">Categoría *</label>
+                <select id="categoria" class="form-control" required>
+                    <option value="">Seleccionar categoría...</option>
+                </select>
+                <span class="form-error" id="errorCategoria"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="prioridad">Prioridad *</label>
+                <select id="prioridad" class="form-control" required>
+                    <option value="baja">Baja - No urgente</option>
+                    <option value="media" selected>Media - Atención normal</option>
+                    <option value="alta">Alta - Requiere atención pronta</option>
+                    <option value="critica">Crítica - Impacta operaciones</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="clienteGroup" style="display:none;">
+                <label for="cliente">Cliente *</label>
+                <select id="cliente" class="form-control">
+                    <option value="">Seleccionar cliente...</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">📤 Enviar Solicitud</button>
+        </form>
+    </div>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/utils/errorHandler.js"></script>
+<script src="../js/components/navbar.js"></script>
+<script src="../js/api/solicitudApi.js"></script>
+<script src="../js/api/clienteApi.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!auth.requireAuth()) return;
+
+      const userRole = auth.getUserRole();
+
+      // Cargar categorías
+      try {
+        const catResult = await solicitudApi.getCategorias();
+        if (catResult.success) {
+          const select = document.getElementById('categoria');
+          catResult.data.forEach(cat => {
+            select.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
+          });
+        }
+      } catch (error) {
+        errorHandler.show('Error al cargar categorías', 'error');
+      }
+
+      // Si es admin/supervisor, mostrar selector de cliente
+      if (userRole === 'administrador' || userRole === 'supervisor') {
+        document.getElementById('clienteGroup').style.display = 'block';
+        try {
+          const clientesResult = await clienteApi.getAll({});
+          if (clientesResult.success) {
+            const select = document.getElementById('cliente');
+            clientesResult.data.forEach(c => {
+              select.innerHTML += `<option value="${c.id}">${c.nombre} (${c.empresa || 'Sin empresa'})</option>`;
+            });
+          }
+        } catch (error) {
+          errorHandler.show('Error al cargar clientes', 'error');
+        }
+      }
+    });
+
+    document.getElementById('solicitudForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Limpiar errores
+      document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+
+      const titulo = document.getElementById('titulo').value.trim();
+      const descripcion = document.getElementById('descripcion').value.trim();
+      const categoria_id = document.getElementById('categoria').value;
+      const prioridad = document.getElementById('prioridad').value;
+      const cliente_id = document.getElementById('cliente')?.value;
+
+      let hasError = false;
+
+      if (titulo.length < 5) {
+        document.getElementById('errorTitulo').textContent = 'El título debe tener al menos 5 caracteres.';
+        hasError = true;
+      }
+
+      if (descripcion.length < 10) {
+        document.getElementById('errorDescripcion').textContent = 'La descripción debe tener al menos 10 caracteres.';
+        hasError = true;
+      }
+
+      if (!categoria_id) {
+        document.getElementById('errorCategoria').textContent = 'Selecciona una categoría.';
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      try {
+        const solicitudData = {
+          titulo,
+          descripcion,
+          categoria_id: parseInt(categoria_id),
+          prioridad
+        };
+
+        if (cliente_id) {
+          solicitudData.cliente_id = parseInt(cliente_id);
+        }
+
+        const result = await solicitudApi.create(solicitudData);
+
+        if (result.success) {
+          errorHandler.show('¡Solicitud creada exitosamente!', 'success');
+          setTimeout(() => {
+            window.location.href = 'solicitudes.html';
+          }, 1500);
+        }
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Sistema de Soporte Técnico</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">👤 Mi Perfil</h1>
+    </div>
+
+    <div class="form-card" style="max-width:500px;">
+        <div style="text-align:center;margin-bottom:1.5rem;">
+            <img id="profilePhoto" src="../assets/default-avatar.png"
+                 alt="Foto de perfil"
+                 style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid var(--primary);">
+            <h2 id="profileName" style="margin-top:0.5rem;">Cargando...</h2>
+            <p id="profileEmail" class="text-muted"></p>
+            <p><span class="badge" id="profileRole"></span></p>
+        </div>
+
+        <div class="form-group">
+            <label>Cambiar foto de perfil</label>
+            <input type="file" id="photoInput" accept="image/jpeg,image/jpg,image/png" class="form-control">
+            <small class="text-muted">Formatos: JPG, PNG. Máximo 5 MB</small>
+        </div>
+        <button class="btn btn-primary" id="btnUploadPhoto" style="width:100%;">📷 Actualizar Foto</button>
+        <div id="uploadStatus" class="text-center mt-1"></div>
+    </div>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/utils/errorHandler.js"></script>
+<script src="../js/components/navbar.js"></script>
+<script src="../js/api/userApi.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!auth.requireAuth()) return;
+
+      const userId = auth.getUserId();
+      const userEmail = auth.getUserEmail();
+
+      document.getElementById('profileEmail').textContent = userEmail;
+
+      try {
+        const result = await userApi.getById(userId);
+        if (result.success) {
+          const user = result.data;
+          document.getElementById('profileName').textContent = user.nombre;
+          document.getElementById('profileRole').textContent = user.rol;
+          document.getElementById('profileRole').className = `badge badge-${user.rol === 'administrador' ? 'critica' : user.rol === 'supervisor' ? 'alta' : 'en_proceso'}`;
+
+          if (user.foto_perfil) {
+            document.getElementById('profilePhoto').src = `http://localhost:3000${user.foto_perfil}`;
+          }
+        }
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+
+      document.getElementById('btnUploadPhoto').addEventListener('click', async () => {
+        const fileInput = document.getElementById('photoInput');
+        const file = fileInput.files[0];
+
+        if (!file) {
+          errorHandler.show('Selecciona una imagen primero.', 'warning');
+          return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          errorHandler.show('La imagen no debe superar 5 MB.', 'error');
+          return;
+        }
+
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+          errorHandler.show('Solo se permiten imágenes JPG y PNG.', 'error');
+          return;
+        }
+
+        try {
+          document.getElementById('uploadStatus').innerHTML = '<div class="spinner"></div>';
+          const result = await userApi.uploadPhoto(userId, file);
+
+          if (result.success) {
+            document.getElementById('profilePhoto').src = `http://localhost:3000${result.data.foto_perfil}?t=${Date.now()}`;
+            document.getElementById('uploadStatus').innerHTML = '<span class="text-success">✓ Foto actualizada</span>';
+            errorHandler.show('Foto de perfil actualizada exitosamente', 'success');
+          }
+        } catch (error) {
+          document.getElementById('uploadStatus').innerHTML = `<span class="text-danger">Error: ${error.message}</span>`;
+          errorHandler.show(error.message, 'error');
+        }
+      });
+    });
+</script>
+</body>
+</html>

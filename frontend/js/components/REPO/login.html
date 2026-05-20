@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Sistema de Soporte Técnico</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body class="login-page">
+<div class="login-card">
+    <h1>🔧 Soporte Técnico</h1>
+    <p class="subtitle">Inicia sesión para acceder al sistema</p>
+
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" class="form-control" placeholder="tu@email.com" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" class="form-control" placeholder="Tu contraseña" required>
+        </div>
+        <div id="errorMessage" class="text-danger mb-1" style="display:none;"></div>
+        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+    </form>
+
+    <p class="text-center mt-2 text-muted">
+        Credenciales de prueba:<br>
+        admin@soporte.com / admin123
+    </p>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/api/authApi.js"></script>
+<script>
+    // Redirigir si ya está autenticado
+    if (auth.isAuthenticated() && !auth.isTokenExpired()) {
+      window.location.href = 'dashboard.html';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorEl = document.getElementById('errorMessage');
+
+      errorEl.style.display = 'none';
+
+      try {
+        const result = await authApi.login(email, password);
+
+        if (result.success) {
+          auth.setToken(result.data.token);
+          // Guardar datos del usuario
+          localStorage.setItem('userName', result.data.user.nombre);
+          localStorage.setItem('userRole', result.data.user.rol);
+          localStorage.setItem('userPhoto', result.data.user.foto_perfil || '');
+
+          window.location.href = 'dashboard.html';
+        } else {
+          errorEl.textContent = result.message || 'Error al iniciar sesión';
+          errorEl.style.display = 'block';
+        }
+      } catch (error) {
+        errorEl.textContent = error.message || 'Error de conexión. Verifica que el servidor esté corriendo.';
+        errorEl.style.display = 'block';
+      }
+    });
+</script>
+</body>
+</html>

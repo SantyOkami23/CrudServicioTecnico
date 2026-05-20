@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/config.js"></script>
+    <title>Clientes - Sistema de Soporte Técnico</title>
+    <!-- Fuentes e iconos profesionales -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Tu hoja de estilos original -->
+    <link rel="stylesheet" href="../css/main.css">
+    <!-- Mejoras de diseño -->
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+            --transition: 0.2s ease;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            width: 100%;
+            flex: 1;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cabecera */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            padding: 1.5rem 2rem;
+            border-radius: var(--radius);
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            letter-spacing: -0.025em;
+        }
+        .page-title i {
+            font-size: 1.8rem;
+            opacity: 0.9;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.6rem 1.4rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: var(--shadow-sm);
+            letter-spacing: -0.01em;
+        }
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-primary:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #334155;
+        }
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+        .btn-warning {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.35rem 1rem;
+            font-size: 0.8rem;
+        }
+        .btn-warning:hover {
+            background: #fde68a;
+        }
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 0.35rem 1rem;
+            font-size: 0.8rem;
+        }
+        .btn-danger:hover {
+            background: #fecaca;
+        }
+        .btn-sm {
+            padding: 0.35rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        /* Barra de búsqueda */
+        .filters-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            background: var(--card-bg);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+        .filter-group label {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            pointer-events: none;
+            transition: all var(--transition);
+            background: var(--card-bg);
+            padding: 0 0.25rem;
+        }
+        .filter-group input {
+            width: 100%;
+            padding: 0.65rem 0.75rem 0.65rem 1.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: #f8fafc;
+            transition: all var(--transition);
+        }
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            background: white;
+        }
+        .filter-group input:focus + label,
+        .filter-group input:not(:placeholder-shown) + label {
+            top: -0.1rem;
+            font-size: 0.75rem;
+            color: var(--primary);
+            background: white;
+            padding: 0 0.25rem;
+        }
+        .filter-group i {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+        #btnFiltrar {
+            white-space: nowrap;
+        }
+
+        /* Tabla */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text);
+        }
+        tbody tr {
+            transition: background var(--transition);
+        }
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Spinner mejorado (skeleton) */
+        .spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.hidden {
+            display: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem 2.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+            border: 1px solid var(--border);
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #334155;
+            margin-bottom: 0.4rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.65rem 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color var(--transition), box-shadow var(--transition);
+            background: #f8fafc;
+            color: var(--text);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+            background: white;
+        }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            th, td {
+                padding: 0.75rem 1rem;
+            }
+            .modal {
+                padding: 1.5rem;
+            }
+            .filters-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-building"></i> Gestión de Clientes</h1>
+        <button class="btn btn-primary" onclick="mostrarModalCrear()"><i class="fas fa-plus-circle"></i> Nuevo Cliente</button>
+    </div>
+
+    <div class="filters-bar">
+        <div class="filter-group">
+            <i class="fas fa-search"></i>
+            <input type="text" id="filterSearch" placeholder=" " autocomplete="off">
+            <label for="filterSearch">Buscar por nombre, empresa o email...</label>
+        </div>
+        <button class="btn btn-secondary" id="btnFiltrar"><i class="fas fa-search"></i> Buscar</button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Empresa</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="clientesTableBody">
+            <!-- Skeleton loader mejorado -->
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 2rem;">
+                    <div class="spinner"></div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal mejorado -->
+<div class="modal-overlay hidden" id="clienteModal">
+    <div class="modal">
+        <h2 id="modalTitle"><i class="fas fa-user-plus"></i> Nuevo Cliente</h2>
+        <form id="clienteForm">
+            <input type="hidden" id="clienteId">
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Nombre *</label>
+                <input type="text" id="clienteNombre" class="form-control" required placeholder="Nombre completo">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-briefcase"></i> Empresa</label>
+                <input type="text" id="clienteEmpresa" class="form-control" placeholder="Nombre de la empresa">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> Email *</label>
+                <input type="email" id="clienteEmail" class="form-control" required placeholder="correo@ejemplo.com">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-phone"></i> Teléfono</label>
+                <input type="text" id="clienteTelefono" class="form-control" placeholder="+56 9 1234 5678">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-map-marker-alt"></i> Dirección</label>
+                <textarea id="clienteDireccion" class="form-control" placeholder="Dirección física"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="cancelarModalBtn">Cancelar</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../js/utils/auth.js"></script>
+<script src="../js/utils/errorHandler.js"></script>
+<script src="../js/components/navbar.js"></script>
+<script src="../js/api/clienteApi.js"></script>
+<script>
+    let isEditing = false;
+
+    async function cargarClientes(search = '') {
+      const tbody = document.getElementById('clientesTableBody');
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;"><div class="spinner"></div></td></tr>';
+
+      try {
+        const result = await clienteApi.getAll(search ? { search } : {});
+        if (result.success && result.data.length > 0) {
+          tbody.innerHTML = result.data.map(c => `
+            <tr>
+              <td><span style="font-weight:600;color:var(--primary);">#${c.id}</span></td>
+              <td><strong>${c.nombre}</strong></td>
+              <td>${c.empresa || '-'}</td>
+              <td>${c.email}</td>
+              <td>${c.telefono || '-'}</td>
+              <td>
+                <button class="btn btn-sm btn-warning" onclick="editarCliente(${c.id})"><i class="fas fa-pencil-alt"></i> Editar</button>
+                <button class="btn btn-sm btn-danger" onclick="eliminarCliente(${c.id}, '${c.nombre}')"><i class="fas fa-trash-alt"></i> Eliminar</button>
+              </td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-user-slash" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i><p>No se encontraron clientes</p></div></td></tr>';
+        }
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-exclamation-circle" style="font-size:2rem;color:var(--danger);margin-bottom:0.5rem;display:block;"></i><p class="text-danger">Error: ${error.message}</p></div></td></tr>`;
+      }
+    }
+
+    function mostrarModalCrear() {
+      isEditing = false;
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Nuevo Cliente';
+      document.getElementById('clienteId').value = '';
+      document.getElementById('clienteNombre').value = '';
+      document.getElementById('clienteEmpresa').value = '';
+      document.getElementById('clienteEmail').value = '';
+      document.getElementById('clienteTelefono').value = '';
+      document.getElementById('clienteDireccion').value = '';
+      toggleModal(true);
+    }
+
+    async function editarCliente(id) {
+      try {
+        const result = await clienteApi.getById(id);
+        if (result.success) {
+          const c = result.data;
+          isEditing = true;
+          document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Cliente';
+          document.getElementById('clienteId').value = c.id;
+          document.getElementById('clienteNombre').value = c.nombre;
+          document.getElementById('clienteEmpresa').value = c.empresa || '';
+          document.getElementById('clienteEmail').value = c.email;
+          document.getElementById('clienteTelefono').value = c.telefono || '';
+          document.getElementById('clienteDireccion').value = c.direccion || '';
+          toggleModal(true);
+        }
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    }
+
+    async function eliminarCliente(id, nombre) {
+      if (!confirm(`¿Eliminar al cliente "${nombre}"?`)) return;
+      try {
+        await clienteApi.delete(id);
+        errorHandler.show('Cliente eliminado exitosamente', 'success');
+        cargarClientes();
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    }
+
+    // Lógica del modal (mejora UX sin romper nada)
+    function toggleModal(show) {
+      const modal = document.getElementById('clienteModal');
+      if (show) {
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    document.getElementById('cancelarModalBtn').addEventListener('click', () => toggleModal(false));
+    document.getElementById('clienteModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('clienteModal')) toggleModal(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !document.getElementById('clienteModal').classList.contains('hidden')) {
+        toggleModal(false);
+      }
+    });
+
+    document.getElementById('clienteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        nombre: document.getElementById('clienteNombre').value,
+        empresa: document.getElementById('clienteEmpresa').value,
+        email: document.getElementById('clienteEmail').value,
+        telefono: document.getElementById('clienteTelefono').value,
+        direccion: document.getElementById('clienteDireccion').value
+      };
+
+      try {
+        const id = document.getElementById('clienteId').value;
+        if (isEditing && id) {
+          await clienteApi.update(id, data);
+          errorHandler.show('Cliente actualizado exitosamente', 'success');
+        } else {
+          await clienteApi.create(data);
+          errorHandler.show('Cliente creado exitosamente', 'success');
+        }
+        toggleModal(false);
+        cargarClientes();
+      } catch (error) {
+        errorHandler.show(error.message, 'error');
+      }
+    });
+
+    document.getElementById('btnFiltrar').addEventListener('click', () => {
+      cargarClientes(document.getElementById('filterSearch').value);
+    });
+
+    // Búsqueda al presionar Enter
+    document.getElementById('filterSearch').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('btnFiltrar').click();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!auth.requireAuth()) return;
+      cargarClientes();
+    });
+</script>
+</body>
+</html>
